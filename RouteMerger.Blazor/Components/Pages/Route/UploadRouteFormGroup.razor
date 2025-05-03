@@ -1,0 +1,99 @@
+﻿@using RouteMerger.Blazor.Mappers
+@using RouteMerger.Blazor.Models
+@using RouteMerger.Domain.Services
+@inject FileReferenceService FileReferenceService
+@inject ILogger<UploadRouteFormGroup> Logger
+
+<div class="form-group">
+    <label>Upload routes</label>
+    <InputFile OnChange="HandleFileUploadAsync" multiple accept=".gpx"/>
+</div>
+
+
+@if (_isLoading)
+{
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: @($"{_progressPercent:F0}%");" 
+             aria-valuenow="@_progressPercent" aria-valuemin="0" aria-valuemax="100">
+            @($"{_progressPercent:F0}%")
+        </div>
+    </div>
+}
+else
+{
+<div class="row">
+    @foreach (var file in _loadedFiles)
+    {
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@file.UserProvidedName</h5>
+                <p class="card-text">
+                    <strong>Last Modified:</strong> @file.LastModifiedAt.ToString()<br />
+                </p>
+                <button type="button" class="btn btn-sm btn-danger" @onclick="() => RemoveFileAsync(file)">Remove</button>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+}
+
+@code {
+
+    [Parameter]
+    public List<FileReference> Value
+    {
+        get => _loadedFiles;
+        set
+        {
+            _loadedFiles.Clear();
+            _loadedFiles.AddRange(value);
+        }
+    }
+
+    [Parameter] public EventCallback<List<FileReference>> ValueChanged { get; set; }
+
+    private readonly List<FileReference> _loadedFiles = [];
+    private bool _isLoading;
+    private decimal _progressPercent;
+
+    private async Task HandleFileUploadAsync(InputFileChangeEventArgs e)
+    {
+        _isLoading = true;
+        _progressPercent = 0;
+
+        try
+        {
+            var uploadedFiles = await FileReferenceService.ProcessFilesAsync(
+                e.GetMultipleFiles().ToArray(),
+                progress =>
+                {
+                    _progressPercent = progress;
+                    InvokeAsync(StateHasChanged);
+                });
+
+            foreach (var file in uploadedFiles)
+            {
+                _loadedFiles.Add(file.ToModel());
+            }
+
+            await ValueChanged.InvokeAsync([.._loadedFiles]);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("Error during file upload: {Error}", ex.Message);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task RemoveFileAsync(FileReference file)
+    {
+        _loadedFiles.Remove(file);
+        await FileReferenceService.DeleteFileAsync(file.Id);
+        await ValueChanged.InvokeAsync([.._loadedFiles]);
+    }
+}

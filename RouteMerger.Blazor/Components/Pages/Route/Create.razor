@@ -1,0 +1,46 @@
+﻿@page "/Route/Create"
+@using RouteMerger.Blazor.Mappers
+@using RouteMerger.Blazor.Models
+@using RouteMerger.Domain.Services
+@inject RouteService RouteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create Route</PageTitle>
+
+<h3>Create Route</h3>
+
+<EditForm Model="NewRoute" OnValidSubmit="HandleValidSubmitAsync" FormName="create">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="NewRoute.Name" class="form-control" />
+        <ValidationMessage For="() => NewRoute.Name" />
+    </div>
+    
+    <UploadRouteFormGroup @bind-Value="NewRoute.FileReferences"/>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="button" class="btn btn-secondary" @onclick="NavigateBack">Cancel</button>
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm]
+    private Route NewRoute { get; set; } = new();
+
+    private async Task HandleValidSubmitAsync()
+    {
+        // Map the model to the domain object and save it
+        var domainRoute = NewRoute.ToDomain();
+        await RouteService.AddAsync(domainRoute);
+
+        // Navigate back to the index page
+        NavigationManager.NavigateTo("/Route/Index");
+    }
+    
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/Route/Index");
+    }
+}

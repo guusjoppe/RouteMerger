@@ -1,0 +1,55 @@
+﻿@page "/Route/Index"
+@using RouteMerger.Blazor.Mappers
+@using RouteMerger.Blazor.Models
+@using RouteMerger.Domain.Services
+@inject RouteService RouteService
+
+<h3>Routes</h3>
+
+<p>
+    <a href="@("/Route/Create")">Create a new route</a>
+</p>
+
+@if (_routes == null)
+{
+    <p>Loading routes...</p>
+}
+else if (!_routes.Any())
+{
+    <p>No routes available.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Modified</th>
+                <th>Number of files</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var route in _routes)
+            {
+                <tr>
+                    <td><a href="@($"/Route/Details/{route.Id}")">@route.Name</a></td>
+                    <td>@route.LastModifiedAt.ToLocalTime().ToString("g")</td>
+                    <td>@route.FileReferences.Count</td>
+                    <td><a href="@($"/Route/Edit/{route.Id}")">Edit</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<Route>? _routes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var domainRoutes = await RouteService.GetAllAsync();
+        _routes = domainRoutes.Select(r => r.ToModel());
+    }
+
+}

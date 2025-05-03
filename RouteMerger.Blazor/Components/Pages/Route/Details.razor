@@ -1,0 +1,72 @@
+﻿@page "/Route/Details/{id:guid}"
+@using RouteMerger.Blazor.Mappers
+@using RouteMerger.Blazor.Models
+@using RouteMerger.Domain.Services
+@using RouteMerger.Blazor.Components.Pages.Map
+@inject RouteService RouteService
+@inject FileReferenceService FileReferenceService
+@inject NavigationManager NavigationManager
+
+<h3>Route</h3>
+
+@if (_route == null)
+{
+    <p>Loading route...</p>
+}
+else
+{
+    <h2>@_route.Name</h2>
+    <p>Last Modified: @_route.LastModifiedAt.ToLocalTime().ToString("g")</p>
+    <p>Number of files: @_route.FileReferences.Count</p>
+    <p>
+        <a href="@($"/Route/Edit/{_route.Id}")">Edit</a>
+        <button class="btn btn-danger" @onclick="DeleteAsync">Delete</button>
+        <button class="btn btn-secondary" @onclick="NavigateBack">Back</button>
+    </p>
+}
+
+@if (_gpxXmlStrings.Length == 0)
+{
+    <p>Loading GPX data...</p>
+}
+else
+{
+<OpenStreetMap GpxXmlStrings="@_gpxXmlStrings" />
+}
+
+@code {
+    [Parameter] 
+    public Guid Id { get; set; }
+    
+    private Route? _route;
+
+    private string[] _gpxXmlStrings = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var domainRoute = await RouteService.GetAsync(Id);
+        _route = domainRoute.ToModel();
+        
+        var gpxStreams =  await FileReferenceService.GetFileStreamsAsync(_route.FileReferences.Select(fr => fr.Id));
+        foreach (var gpxStream in gpxStreams)
+        {
+            using var reader = new StreamReader(gpxStream);
+            var gpxXmlString = await reader.ReadToEndAsync();
+            _gpxXmlStrings = _gpxXmlStrings.Append(gpxXmlString).ToArray();
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/Route/Index");
+    }
+    
+    private async Task DeleteAsync()
+    {
+        if (_route != null)
+        {
+            await RouteService.DeleteAsync(Id);
+            NavigationManager.NavigateTo("/Route/Index");
+        }
+    }
+}

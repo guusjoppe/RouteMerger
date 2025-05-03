@@ -1,0 +1,69 @@
+﻿@page "/Route/Edit/{id:guid}"
+@using RouteMerger.Blazor.Mappers
+@using RouteMerger.Blazor.Models
+@using RouteMerger.Domain.Services
+@inject RouteService RouteService
+@inject NavigationManager NavigationManager
+
+<h3>Edit Route</h3>
+
+@if (_route == null)
+{
+    <p>Loading route...</p>
+}
+else
+{
+    <EditForm Model="_route" OnValidSubmit="HandleValidSubmitAsync" FormName="edit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="_route.Name" class="form-control" />
+            <ValidationMessage For="() => _route.Name" />
+        </div>
+        
+        <UploadRouteFormGroup @bind-Value="_route.FileReferences" />
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" @onclick="NavigateBack">Cancel</button>
+        <button type="button" class="btn btn-danger" @onclick="DeleteAsync">Delete</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] 
+    public Guid Id { get; set; }
+    
+    private Route? _route;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var domainRoute = await RouteService.GetAsync(Id);
+        _route = domainRoute.ToModel();
+    }
+
+    private async Task HandleValidSubmitAsync()
+    {
+        if (_route != null)
+        {
+            var domainRoute = _route.ToDomain();
+            await RouteService.UpdateAsync(Id, domainRoute);
+            NavigationManager.NavigateTo("/Route/Index");
+        }
+    }
+
+    private void NavigateBack()
+    {
+        NavigationManager.NavigateTo("/Route/Index");
+    }
+    
+    private async Task DeleteAsync()
+    {
+        if (_route != null)
+        {
+            await RouteService.DeleteAsync(Id);
+            NavigationManager.NavigateTo("/Route/Index");
+        }
+    }
+}

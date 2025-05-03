@@ -1,0 +1,30 @@
+﻿services:
+  routemergerblazor:
+    image: routemergerblazor
+    build:
+      context: .
+      dockerfile: RouteMergerBlazor/Dockerfile
+
+  routemergerblazor-1:
+    image: routemergerblazor-1
+    build:
+      context: .
+      dockerfile: RouteMergerBlazor/Dockerfile
+
+  routemergerblazor-2:
+    image: routemergerblazor-2
+    build:
+      context: .
+      dockerfile: RouteMergerBlazor/Dockerfile
+
+  routemerger.blazor:
+    image: routemerger.blazor
+    build:
+      context: .
+      dockerfile: RouteMerger.Blazor/Dockerfile
+
+  routemerger.blazor-1:
+    image: routemerger.blazor-1
+    build:
+      context: .
+      dockerfile: RouteMerger.Blazor/Dockerfile
