@@ -1,0 +1,62 @@
+﻿# Ignore build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# ASP.NET Core and Blazor specific files
+wwwroot/
+
+# Logs
+*.log
+logs/
+
+# IDE files
+.vscode/
+.idea/
+*.code-workspace
+
+# Dependency directories
+node_modules/
+bower_components/
+
+# Package files
+*.nupkg
+*.snupkg
+
+# Generated files
+*.generated.cs
+*.g.cs
+*.g.i.cs
+
+# Publish output
+publish/
+out/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+*.pdb
+*.mdb
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Rider IDE files
+.idea/
+*.sln.iml
+
+# Visual Studio Code specific
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# Ignore local configuration files
+*appsettings.Local.json
