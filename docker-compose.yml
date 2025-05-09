@@ -1,30 +1,26 @@
 ﻿services:
-  routemergerblazor:
-    image: routemergerblazor
-    build:
-      context: .
-      dockerfile: RouteMergerBlazor/Dockerfile
-
-  routemergerblazor-1:
-    image: routemergerblazor-1
-    build:
-      context: .
-      dockerfile: RouteMergerBlazor/Dockerfile
-
-  routemergerblazor-2:
-    image: routemergerblazor-2
-    build:
-      context: .
-      dockerfile: RouteMergerBlazor/Dockerfile
-
   routemerger.blazor:
-    image: routemerger.blazor
+    image: routemergerblazor
+    container_name: routemerger.blazor
     build:
       context: .
       dockerfile: RouteMerger.Blazor/Dockerfile
+    ports:
+        - "5000:5000"
+    environment:
+      ASPNETCORE_URLS: "http://+:5000"
+      ASPNETCORE_ENVIRONMENT: "Development"
+  routemerger.postgres:
+    image: postgres:latest
+    container_name: routemerger.postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: routemergerdb
+    ports:
+      - "5431:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
-  routemerger.blazor-1:
-    image: routemerger.blazor-1
-    build:
-      context: .
-      dockerfile: RouteMerger.Blazor/Dockerfile
+volumes:
+    pgdata:
