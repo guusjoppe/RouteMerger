@@ -1,9 +1,9 @@
 using RouteMerger.Blazor.Components;
-using RouteMerger.Blazor.Middleware;
 using RouteMerger.Domain.Extensions;
 using RouteMerger.Infrastructure.Extensions;
 using RouteMerger.Persistence.Extensions;
 using Serilog;
+using Serilog.Sinks.OpenTelemetry;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Add Serilog
-builder.Host.UseSerilog((context, configuration) =>
-{
-    configuration.ReadFrom.Configuration(context.Configuration);
-});
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+    loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration));
 
 builder.Services.AddDomainServices();
 builder.Services.AddPersistenceServices(builder.Configuration);
@@ -32,9 +29,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseMiddleware<RequestLogContextMiddleware>();
-app.UseSerilogRequestLogging();
 
 app.UseAntiforgery();
 
