@@ -92,8 +92,8 @@ else
 
     private async Task RemoveFileAsync(FileReference file)
     {
-        _loadedFiles.Remove(file);
         await FileReferenceService.DeleteFileAsync(file.Id);
+        _loadedFiles.Remove(file);
         await ValueChanged.InvokeAsync([.._loadedFiles]);
     }
 }
