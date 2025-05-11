@@ -10,6 +10,7 @@
     environment:
       ASPNETCORE_URLS: "http://+:5000"
       ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__RouteMergerDbContext: "Host=routemerger.postgres;Port=5432;Database=routemergerdb;Username=postgres;Password=postgres"
   routemerger.postgres:
     image: postgres:latest
     container_name: routemerger.postgres
@@ -30,7 +31,7 @@
     environment:
       ACCEPT_EULA: "Y"
     volumes:
-      - seqdata:/var/lib/seq/data
+      - seqdata:/data
 
 volumes:
     pgdata:

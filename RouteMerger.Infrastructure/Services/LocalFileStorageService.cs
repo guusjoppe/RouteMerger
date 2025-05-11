@@ -37,7 +37,7 @@ public class LocalFileStorageService : IFileStorageService
 
         _logger.LogInformation("Successfully saved: {FileName} of size {FileSize} kB",
             trustedFileName,
-            bytesRead / 1024);
+            writeStream.Length / 1024);
         return trustedFileName;
     }
 
