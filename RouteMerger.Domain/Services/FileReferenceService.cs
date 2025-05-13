@@ -83,14 +83,27 @@ public class FileReferenceService(
         return fileReference;
     }
     
-    public async Task<Stream[]> GetFileStreamsAsync(IEnumerable<Guid> fileReferenceIds)
+    public async Task<Stream[]> GetFileStreamsAsync(
+        IEnumerable<Guid> fileReferenceIds,
+        FileDirectory fileDirectory = FileDirectory.Uploaded)
     {
         var fileReferences = await fileReferenceRepository.GetAsync(fileReferenceIds);
         
         var streams = fileReferences.Select(fr => 
-            fileStorageService.DownloadFileStreamAsync(fr.FileName)).ToArray();
+            fileStorageService.DownloadFileStreamAsync(fr.FileName, fileDirectory)).ToArray();
         
         return await Task.WhenAll(streams);
+    }
+    
+    public async Task<Stream> GetFileStreamsAsync(
+        Guid fileReferenceId,
+        FileDirectory fileDirectory = FileDirectory.Uploaded)
+    {
+        var fileReference = await fileReferenceRepository.GetAsync(fileReferenceId);
+        
+        var stream = await fileStorageService.DownloadFileStreamAsync(fileReference.FileName, fileDirectory);
+
+        return stream;
     }
     
     public async Task DeleteFileAsync(Guid fileReferenceId)

@@ -13,5 +13,7 @@ public class Route
     [Required(ErrorMessage = "At least one file is required")]
     public List<FileReference> FileReferences { get; set; } = [];
     
+    public FileReference? MergedRoute { get; set; }
+    
     public DateTimeOffset LastModifiedAt { get; init; }
 }

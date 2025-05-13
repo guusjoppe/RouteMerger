@@ -65,7 +65,12 @@ public class RouteService(
         
         var mergedFileName = $"{route.Name}.gpx";
         var mergedFileStream = new MemoryStream();
-        await using var writer = XmlWriter.Create(mergedFileStream, new XmlWriterSettings { Indent = true });
+        await using var writer = XmlWriter.Create(
+            mergedFileStream,
+            new XmlWriterSettings
+            {
+                Async = true,
+            });
         serializer.Serialize(writer, mergedGpx);
         await writer.FlushAsync();
 

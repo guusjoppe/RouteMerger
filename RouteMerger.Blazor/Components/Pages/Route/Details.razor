@@ -3,6 +3,7 @@
 @using RouteMerger.Blazor.Models
 @using RouteMerger.Domain.Services
 @using RouteMerger.Blazor.Components.Pages.Map
+@using RouteMerger.Infrastructure.Enums
 @inject RouteService RouteService
 @inject FileReferenceService FileReferenceService
 @inject NavigationManager NavigationManager
@@ -31,9 +32,17 @@ else
 }
 else
 {
-<OpenStreetMap GpxXmlStrings="@_gpxXmlStrings" />
+    <OpenStreetMap GpxXmlStrings="@_gpxXmlStrings" />
 }
 
+@if (_route?.MergedRoute == null)
+{
+    <button class="btn btn-primary" @onclick="MergeRoutesAsync">Merge Routes</button>
+}
+else
+{
+    <OpenStreetMap GpxXmlStrings="@_mergedGpxString"></OpenStreetMap>
+}
 @code {
     [Parameter] 
     public Guid Id { get; set; }
@@ -41,6 +50,9 @@ else
     private Route? _route;
 
     private string[] _gpxXmlStrings = [];
+    private string[] _mergedGpxString = [];
+    
+    private decimal _progressPercent;
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,6 +65,24 @@ else
             using var reader = new StreamReader(gpxStream);
             var gpxXmlString = await reader.ReadToEndAsync();
             _gpxXmlStrings = _gpxXmlStrings.Append(gpxXmlString).ToArray();
+        }
+    }
+    
+    private async Task MergeRoutesAsync()
+    {
+        if (_route != null)
+        {
+            var mergedRouteReference = await RouteService.MergeRoutesAsync(_route.Id,
+                progress =>
+            {
+                _progressPercent = progress;
+                InvokeAsync(StateHasChanged);
+            });
+            var gpxStream = await FileReferenceService.GetFileStreamsAsync(mergedRouteReference.Id, FileDirectory.Merged);
+            using var reader = new StreamReader(gpxStream);
+            var gpxXmlString = await reader.ReadToEndAsync();
+            _mergedGpxString = [gpxXmlString];
+            _route.MergedRoute = mergedRouteReference.ToModel();
         }
     }
 
