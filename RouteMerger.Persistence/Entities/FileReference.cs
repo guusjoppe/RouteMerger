@@ -3,7 +3,7 @@
 public class FileReference : BaseEntity
 {
     public Guid Id { get; init; }
-    public Guid RouteId { get; init; }
+    public Guid RouteId { get; set; }
     public required string FileName { get; init; }
     public required string UserProvidedName { get; init; }
     public required string RelativePath { get; init; }

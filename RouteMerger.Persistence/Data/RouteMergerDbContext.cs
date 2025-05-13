@@ -29,6 +29,11 @@ public class RouteMergerDbContext : DbContext
             .WithOne()
             .HasForeignKey(fr => fr.RouteId);
 
+        modelBuilder.Entity<Route>()
+            .HasOne<FileReference>(r => r.MergedFileReference)
+            .WithOne()
+            .HasForeignKey<Route>(fr => fr.MergedFileReferenceId);
+
         modelBuilder.Entity<FileReference>()
             .Property(fr => fr.FileName)
             .HasMaxLength(100)

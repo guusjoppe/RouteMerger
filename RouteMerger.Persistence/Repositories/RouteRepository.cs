@@ -25,6 +25,7 @@ public class RouteRepository(RouteMergerDbContext context) : IRouteRepository
             .Where(r => r.DeletedAt == null)
             .Include(r => r.FileReferences
                 .Where(fr => fr.DeletedAt == null))
+            .Include(r => r.MergedFileReference)
             .OrderByDescending(r => r.LastUpdatedAt)
             .ToListAsync();
 
@@ -69,12 +70,29 @@ public class RouteRepository(RouteMergerDbContext context) : IRouteRepository
                 r => r.DeletedAt,
                 DateTimeOffset.UtcNow));
     }
-    
+
+    public async Task<FileReference> UpdateMergedRouteReference(
+        Guid id,
+        FileReference mergedFileReference)
+    {
+        var route = await FindRouteAsync(id);
+        if (route == null)
+        {
+            throw new EntityNotFoundException(id, nameof(Route));
+        }
+        
+        route.UpdateMergedFileReference(mergedFileReference.ToEntity());
+        await context.SaveChangesAsync();
+
+        return route.MergedFileReference!.ToDomain();
+    }
+
     private async Task<Entities.Route?> FindRouteAsync(Guid id)
     {
         return await context.Routes
             .Include(r => r.FileReferences
                 .Where(fr => fr.DeletedAt == null))
+            .Include(r => r.MergedFileReference)
             .FirstOrDefaultAsync(r => r.Id == id && r.DeletedAt == null);
     }
 }

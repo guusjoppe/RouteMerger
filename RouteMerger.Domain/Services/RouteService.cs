@@ -74,11 +74,15 @@ public class RouteService(
         serializer.Serialize(writer, mergedGpx);
         await writer.FlushAsync();
 
-        return await fileReferenceService.ProcessFileStreamAsync(
+        var mergedFileReference = await fileReferenceService.ProcessFileStreamAsync(
             mergedFileStream,
             mergedFileName,
             onUploadProgress,
             FileDirectory.Merged);
+        
+        return await routeRepository.UpdateMergedRouteReference(
+            id,
+            mergedFileReference);
     }
     
     public async Task<Route> UpdateAsync(Guid id, Route route)
