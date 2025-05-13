@@ -1,5 +1,9 @@
-﻿using RouteMerger.Domain.Interfaces;
+﻿using System.Xml;
+using System.Xml.Serialization;
+using RouteMerger.Domain.Interfaces;
 using RouteMerger.Domain.Models;
+using RouteMerger.Domain.Utilities.XmlSchemas.Schemas.Models;
+using RouteMerger.Infrastructure.Enums;
 
 namespace RouteMerger.Domain.Services;
 
@@ -20,6 +24,56 @@ public class RouteService(
     public async Task<Route> AddAsync(Route route)
     {
         return await routeRepository.AddAsync(route);
+    }
+
+    public async Task<FileReference> MergeRoutesAsync(
+        Guid id,
+        Action<decimal> onUploadProgress)
+    {
+        var serializer = new XmlSerializer(typeof(gpxType));
+        var route = await routeRepository.GetAsync(id);
+        var fileStreams = await fileReferenceService.GetFileStreamsAsync(route.Files.Select(f => f.Id));
+
+        var trks = new List<trkType>();
+        foreach (var fileStream in fileStreams)
+        {
+            var gpx = (gpxType?)serializer.Deserialize(fileStream);
+            if (gpx == null)
+            {
+                throw new InvalidOperationException("Failed to deserialize GPX file.");
+            }
+
+            var trk = gpx.trk;
+            if (trk == null || trk.Length == 0)
+            {
+                throw new InvalidOperationException("No track found in GPX file.");
+            }
+            
+            trks.AddRange(trk);
+        }
+
+        var mergedGpx = new gpxType
+        {
+            metadata = new metadataType
+            {
+                name = route.Name,
+                time = DateTime.UtcNow,
+            },
+            trk = trks.ToArray(),
+            creator = "RouteMerger",
+        };
+        
+        var mergedFileName = $"{route.Name}.gpx";
+        var mergedFileStream = new MemoryStream();
+        await using var writer = XmlWriter.Create(mergedFileStream, new XmlWriterSettings { Indent = true });
+        serializer.Serialize(writer, mergedGpx);
+        await writer.FlushAsync();
+
+        return await fileReferenceService.ProcessFileStreamAsync(
+            mergedFileStream,
+            mergedFileName,
+            onUploadProgress,
+            FileDirectory.Merged);
     }
     
     public async Task<Route> UpdateAsync(Guid id, Route route)

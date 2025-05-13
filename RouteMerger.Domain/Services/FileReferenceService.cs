@@ -5,6 +5,7 @@ using RouteMerger.Domain.Interfaces;
 using RouteMerger.Domain.Models;
 using RouteMerger.Domain.Utilities;
 using RouteMerger.Domain.Utilities.XmlSchemas;
+using RouteMerger.Infrastructure.Enums;
 using RouteMerger.Infrastructure.Interfaces;
 
 namespace RouteMerger.Domain.Services;
@@ -50,6 +51,37 @@ public class FileReferenceService(
 
         return fileReferences;
     }
+
+    public async Task<FileReference> ProcessFileStreamAsync(
+        Stream fileStream, 
+        string fileName,
+        Action<decimal> onProgress,
+        FileDirectory fileDirectory = FileDirectory.Uploaded)
+    {
+        var totalFileSize = fileStream.Length;
+        var totalRead = 0L;
+        
+        var storedFileName = await fileStorageService.SaveFileAsync(
+            fileStream,
+            fileName,
+            bytesRead =>
+            {
+                totalRead += bytesRead;
+                var progress = ProgressCalculator.CalculateProgress(totalRead, totalFileSize);
+                onProgress(progress);
+            },
+            fileDirectory);
+
+        var fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
+        var fileReference = new FileReference
+        {
+            FileName = storedFileName,
+            UserProvidedName = fileName,
+            FileExtension = fileExtension
+        };
+
+        return fileReference;
+    }
     
     public async Task<Stream[]> GetFileStreamsAsync(IEnumerable<Guid> fileReferenceIds)
     {
@@ -70,8 +102,6 @@ public class FileReferenceService(
         await fileReferenceRepository.DeleteAsync(fileReferenceId);
     }
     
-    
-
     public async Task DeleteFilesFromRouteAsync(Guid routeId)
     {
         var fileReferences = await fileReferenceRepository.GetByRouteIdAsync(routeId);
