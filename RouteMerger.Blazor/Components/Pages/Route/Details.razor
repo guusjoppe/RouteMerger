@@ -26,22 +26,22 @@ else
     </p>
 }
 
-@if (_gpxXmlStrings.Length == 0)
-{
-    <p>Loading GPX data...</p>
-}
-else
-{
-    <OpenStreetMap GpxXmlStrings="@_gpxXmlStrings" />
-}
-
 @if (_route?.MergedRoute == null)
 {
     <button class="btn btn-primary" @onclick="MergeRoutesAsync">Merge Routes</button>
+    if (_isLoading)
+    {
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: @($"{_progressPercent:F0}%");" 
+                 aria-valuenow="@_progressPercent" aria-valuemin="0" aria-valuemax="100">
+                @($"{_progressPercent:F0}%")
+            </div>
+        </div>
+    }
 }
 else
 {
-    <OpenStreetMap GpxXmlStrings="@_mergedGpxString"></OpenStreetMap>
+    <OpenStreetMap GpxXmlString="@_mergedGpxString"></OpenStreetMap>
 }
 @code {
     [Parameter] 
@@ -49,27 +49,27 @@ else
     
     private Route? _route;
 
-    private string[] _gpxXmlStrings = [];
-    private string[] _mergedGpxString = [];
+    private string _mergedGpxString = string.Empty;
     
+    private bool _isLoading;
     private decimal _progressPercent;
 
     protected override async Task OnInitializedAsync()
     {
         var domainRoute = await RouteService.GetAsync(Id);
+        
         _route = domainRoute.ToModel();
         
-        var gpxStreams =  await FileReferenceService.GetFileStreamsAsync(_route.FileReferences.Select(fr => fr.Id));
-        foreach (var gpxStream in gpxStreams)
+        if (_route.MergedRoute != null)
         {
-            using var reader = new StreamReader(gpxStream);
-            var gpxXmlString = await reader.ReadToEndAsync();
-            _gpxXmlStrings = _gpxXmlStrings.Append(gpxXmlString).ToArray();
+            var gpxStream = await FileReferenceService.GetFileStreamsAsync(_route.MergedRoute.Id, FileDirectory.Merged);
+            await SetMergedGpxStringAsync(gpxStream);
         }
     }
-    
+
     private async Task MergeRoutesAsync()
     {
+        _isLoading = true;
         if (_route != null)
         {
             var mergedRouteReference = await RouteService.MergeRoutesAsync(_route.Id,
@@ -79,11 +79,19 @@ else
                 InvokeAsync(StateHasChanged);
             });
             var gpxStream = await FileReferenceService.GetFileStreamsAsync(mergedRouteReference.Id, FileDirectory.Merged);
-            using var reader = new StreamReader(gpxStream);
-            var gpxXmlString = await reader.ReadToEndAsync();
-            _mergedGpxString = [gpxXmlString];
+            await SetMergedGpxStringAsync(gpxStream);
             _route.MergedRoute = mergedRouteReference.ToModel();
         }
+        
+        _isLoading = false;
+    }
+    
+    private async Task SetMergedGpxStringAsync(Stream gpxStream)
+    {
+        using var reader = new StreamReader(gpxStream);
+        var gpxXmlString = await reader.ReadToEndAsync();
+        _mergedGpxString = gpxXmlString;
+        await InvokeAsync(StateHasChanged);
     }
 
     private void NavigateBack()

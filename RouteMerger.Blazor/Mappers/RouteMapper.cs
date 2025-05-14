@@ -11,6 +11,7 @@ public static class RouteMapper
         {
             Name = route.Name,
             Files = route.FileReferences.Select(f => f.ToDomain()).ToList(),
+            MergedFileReference = route.MergedRoute?.ToDomain(),
         };
     }
     
@@ -21,6 +22,7 @@ public static class RouteMapper
             Id = route.Id,
             Name = route.Name,
             FileReferences = route.Files.Select(f => f.ToModel()).ToList(),
+            MergedRoute = route.MergedFileReference?.ToModel(),
             LastModifiedAt = route.LastModifiedAt,
         };
     }

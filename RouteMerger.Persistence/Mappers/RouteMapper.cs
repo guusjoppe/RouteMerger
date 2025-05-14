@@ -12,6 +12,7 @@ public static class RouteMapper
             Id = entity.Id,
             Name = entity.Name,
             Files = entity.FileReferences.Select(f => f.ToDomain()).ToList(),
+            MergedFileReference = entity.MergedFileReference?.ToDomain(),
             LastModifiedAt = entity.LastUpdatedAt,
         };
     }

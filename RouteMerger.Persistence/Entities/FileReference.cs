@@ -8,6 +8,7 @@ public class FileReference : BaseEntity
     public required string UserProvidedName { get; init; }
     public required string RelativePath { get; init; }
     public required string FileExtension { get; init; }
+    public bool IsMerged { get; set; }
 
     public void Update()
     {

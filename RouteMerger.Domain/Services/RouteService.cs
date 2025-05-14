@@ -74,6 +74,9 @@ public class RouteService(
         serializer.Serialize(writer, mergedGpx);
         await writer.FlushAsync();
 
+        // Reset the stream position to the beginning
+        mergedFileStream.Position = 0;
+        
         var mergedFileReference = await fileReferenceService.ProcessFileStreamAsync(
             mergedFileStream,
             mergedFileName,

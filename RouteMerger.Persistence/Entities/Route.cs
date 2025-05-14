@@ -6,7 +6,7 @@ public class Route : BaseEntity
 {
     public Guid Id { get; init; }
     public required string Name { get; set; }
-    public ICollection<FileReference> FileReferences { get; init; } = [];
+    public ICollection<FileReference> FileReferences { get; set; } = [];
     
     public Guid? MergedFileReferenceId { get; set; }
     public FileReference? MergedFileReference { get; set; }
@@ -45,8 +45,9 @@ public class Route : BaseEntity
     {
         MergedFileReference?.Delete();
 
-        MergedFileReference = mergedFileReference;
         mergedFileReference.RouteId = Id;
+        mergedFileReference.IsMerged = true;
+        MergedFileReference = mergedFileReference;
         
         LastUpdatedAt = DateTimeOffset.UtcNow;
     }

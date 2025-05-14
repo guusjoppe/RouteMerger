@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RouteMerger.Persistence.Data;
@@ -11,9 +12,11 @@ using RouteMerger.Persistence.Data;
 namespace RouteMerger.Persistence.Migrations
 {
     [DbContext(typeof(RouteMergerDbContext))]
-    partial class RouteMergerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250513175759_AddedIsMergedToFileReference")]
+    partial class AddedIsMergedToFileReference
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

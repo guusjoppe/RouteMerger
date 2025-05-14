@@ -24,8 +24,7 @@ public class RouteRepository(RouteMergerDbContext context) : IRouteRepository
         var routes = await context.Routes
             .Where(r => r.DeletedAt == null)
             .Include(r => r.FileReferences
-                .Where(fr => fr.DeletedAt == null))
-            .Include(r => r.MergedFileReference)
+                .Where(fr => fr.DeletedAt == null && fr.IsMerged == false))
             .OrderByDescending(r => r.LastUpdatedAt)
             .ToListAsync();
 
@@ -89,10 +88,23 @@ public class RouteRepository(RouteMergerDbContext context) : IRouteRepository
 
     private async Task<Entities.Route?> FindRouteAsync(Guid id)
     {
-        return await context.Routes
-            .Include(r => r.FileReferences
-                .Where(fr => fr.DeletedAt == null))
-            .Include(r => r.MergedFileReference)
-            .FirstOrDefaultAsync(r => r.Id == id && r.DeletedAt == null);
+       var routeAndFileReferences = await context.Routes
+                .Include(r => r.FileReferences)
+                .Include(r => r.MergedFileReference)
+                .Select(r => new
+                {
+                    Route = r,
+                    FileReferences = r.FileReferences
+                        .Where(fr => fr.DeletedAt == null && fr.IsMerged == false)
+                })
+                .FirstOrDefaultAsync(r => r.Route.Id == id && r.Route.DeletedAt == null);
+
+       if (routeAndFileReferences == null)
+       {
+           return null;
+       }
+       
+       routeAndFileReferences.Route.FileReferences = routeAndFileReferences.FileReferences.ToList();
+       return routeAndFileReferences.Route;
     }
 }

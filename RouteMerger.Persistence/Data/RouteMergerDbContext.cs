@@ -48,5 +48,8 @@ public class RouteMergerDbContext : DbContext
             .Property(fr => fr.FileExtension)
             .HasMaxLength(10)
             .IsRequired();
+
+        modelBuilder.Entity<FileReference>()
+            .HasIndex(fr => fr.IsMerged);
     }
 }

@@ -12,7 +12,7 @@ public class FileReferenceRepository(
     public async Task<ICollection<FileReference>> GetAsync(IEnumerable<Guid> ids)
     {
         var fileReferences = await context.FileReferences
-            .Where(fr => ids.Contains(fr.Id) && fr.DeletedAt == null)
+            .Where(fr => ids.Contains(fr.Id) && fr.DeletedAt == null && fr.IsMerged == false)
             .ToListAsync();
 
         return fileReferences
@@ -55,7 +55,7 @@ public class FileReferenceRepository(
     public async Task<ICollection<FileReference>> GetByRouteIdAsync(Guid routeId)
     {
         var fileReferences = await context.FileReferences
-            .Where(fr => fr.RouteId == routeId && fr.DeletedAt == null)
+            .Where(fr => fr.RouteId == routeId && fr.DeletedAt == null && fr.IsMerged == false)
             .ToListAsync();
 
         return fileReferences
