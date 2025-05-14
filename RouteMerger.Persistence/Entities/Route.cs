@@ -8,6 +8,9 @@ public class Route : BaseEntity
     public required string Name { get; set; }
     public ICollection<FileReference> FileReferences { get; set; } = [];
     
+    public Guid? MergedFileReferenceId { get; set; }
+    public FileReference? MergedFileReference { get; set; }
+    
     public void Update(DomainRoute route)
     {
         Name = route.Name;
@@ -34,6 +37,17 @@ public class Route : BaseEntity
             fileReference.Update();
             FileReferences.Add(fileReference);
         }
+        
+        LastUpdatedAt = DateTimeOffset.UtcNow;
+    }
+    
+    public void UpdateMergedFileReference(FileReference mergedFileReference)
+    {
+        MergedFileReference?.Delete();
+
+        mergedFileReference.RouteId = Id;
+        mergedFileReference.IsMerged = true;
+        MergedFileReference = mergedFileReference;
         
         LastUpdatedAt = DateTimeOffset.UtcNow;
     }

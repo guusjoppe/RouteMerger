@@ -10,7 +10,7 @@
     environment:
       ASPNETCORE_URLS: "http://+:5000"
       ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__RouteMergerDbContext: "Host=routemerger.postgres;Port=5432;Database=routemergerdb;Username=postgres;Password=postgres"
+      ConnectionStrings__DefaultConnection: "Host=routemerger.postgres;Port=5432;Database=routemergerdb;Username=postgres;Password=postgres"
   routemerger.postgres:
     image: postgres:latest
     container_name: routemerger.postgres
@@ -30,6 +30,7 @@
       - "8081:80"
     environment:
       ACCEPT_EULA: "Y"
+      Serilog__WriteTo__OpenTelemetry__endpoint: "http://routemerger.seq:5341/ingest/otlp/v1/logs"
     volumes:
       - seqdata:/data
 

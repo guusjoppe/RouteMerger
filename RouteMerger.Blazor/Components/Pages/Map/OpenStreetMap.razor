@@ -4,7 +4,7 @@
 
 @code {
     [Parameter] 
-    public string[] GpxXmlStrings { get; set; } = [];
+    public required string GpxXmlString { get; set; }
     
     private DotNetObjectReference<OpenStreetMap>? _dotNetRef;
     
@@ -36,12 +36,9 @@
             await JsRuntime.InvokeVoidAsync("openStreetMap.initMap", "map", latitude, longitude);
             
             // Add GPX layers if provided
-            if (GpxXmlStrings.Length > 0)
+            if (GpxXmlString != string.Empty)
             {
-                foreach (var gpxXmlString in GpxXmlStrings)
-                {
-                    await JsRuntime.InvokeVoidAsync("openStreetMap.addGpxLayer", gpxXmlString);
-                }
+                await JsRuntime.InvokeVoidAsync("openStreetMap.addGpxLayer", GpxXmlString);
             }
         }
     }

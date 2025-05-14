@@ -23,8 +23,10 @@ public static class ServiceCollectionExtensions
 
     private static void AddDbContext(IServiceCollection services, IConfiguration configuration)
     {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        Console.WriteLine("Connection string: " + connectionString);
         services.AddDbContext<RouteMergerDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("RouteMergerDbContext")));
+            options.UseNpgsql(connectionString));
         
         // run missing migrations on the database if it is in development mode
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")

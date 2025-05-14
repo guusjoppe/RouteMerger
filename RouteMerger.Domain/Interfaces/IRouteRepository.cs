@@ -9,4 +9,5 @@ public interface IRouteRepository
     Task<Route> AddAsync(Route route);
     Task<Route> UpdateAsync(Guid id, Route route);
     Task DeleteAsync(Guid id);
+    Task<FileReference> UpdateMergedRouteReference(Guid id, FileReference mergedFileReference);
 }
