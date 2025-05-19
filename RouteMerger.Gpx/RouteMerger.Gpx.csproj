@@ -6,8 +6,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Authors>Guus Joppe</Authors>
-        <Version>1.0.0-beta1</Version>
+        <Version>1.0.0-beta3</Version>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
         <Description>RouteMerger.Gpx is a library for merging GPX files.</Description>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include=".\readme.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
 </Project>
