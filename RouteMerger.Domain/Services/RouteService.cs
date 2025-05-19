@@ -2,7 +2,7 @@
 using System.Xml.Serialization;
 using RouteMerger.Domain.Interfaces;
 using RouteMerger.Domain.Models;
-using RouteMerger.Domain.Utilities.XmlSchemas.Schemas.Models;
+using RouteMerger.Gpx.Services;
 using RouteMerger.Infrastructure.Enums;
 
 namespace RouteMerger.Domain.Services;
@@ -30,53 +30,13 @@ public class RouteService(
         Guid id,
         Action<decimal> onUploadProgress)
     {
-        var serializer = new XmlSerializer(typeof(gpxType));
         var route = await routeRepository.GetAsync(id);
         var fileStreams = await fileReferenceService.GetFileStreamsAsync(route.Files.Select(f => f.Id));
 
-        var trks = new List<trkType>();
-        foreach (var fileStream in fileStreams)
-        {
-            var gpx = (gpxType?)serializer.Deserialize(fileStream);
-            if (gpx == null)
-            {
-                throw new InvalidOperationException("Failed to deserialize GPX file.");
-            }
+        var routeName = route.Name;
+        var mergedFileStream = await MergeGpxService.MergeGpxStreamsAsync(fileStreams, routeName);
 
-            var trk = gpx.trk;
-            if (trk == null || trk.Length == 0)
-            {
-                throw new InvalidOperationException("No track found in GPX file.");
-            }
-            
-            trks.AddRange(trk);
-        }
-
-        var mergedGpx = new gpxType
-        {
-            metadata = new metadataType
-            {
-                name = route.Name,
-                time = DateTime.UtcNow,
-            },
-            trk = trks.ToArray(),
-            creator = "RouteMerger",
-        };
-        
-        var mergedFileName = $"{route.Name}.gpx";
-        var mergedFileStream = new MemoryStream();
-        await using var writer = XmlWriter.Create(
-            mergedFileStream,
-            new XmlWriterSettings
-            {
-                Async = true,
-            });
-        serializer.Serialize(writer, mergedGpx);
-        await writer.FlushAsync();
-
-        // Reset the stream position to the beginning
-        mergedFileStream.Position = 0;
-        
+        var mergedFileName = $"{routeName}.gpx";
         var mergedFileReference = await fileReferenceService.ProcessFileStreamAsync(
             mergedFileStream,
             mergedFileName,
@@ -87,7 +47,7 @@ public class RouteService(
             id,
             mergedFileReference);
     }
-    
+
     public async Task<Route> UpdateAsync(Guid id, Route route)
     {
         return await routeRepository.UpdateAsync(id, route);

@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>latestmajor</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Authors>Guus Joppe</Authors>
+        <Version>1.0.0-beta1</Version>
+        <Description>RouteMerger.Gpx is a library for merging GPX files.</Description>
+    </PropertyGroup>
+
+</Project>
