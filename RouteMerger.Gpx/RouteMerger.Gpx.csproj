@@ -11,6 +11,7 @@
         <Description>RouteMerger.Gpx is a library for merging GPX files.</Description>
         <Title>RouteMerger.Gpx</Title>
         <PackageTags>gpx</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
