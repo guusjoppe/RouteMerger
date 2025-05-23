@@ -8,14 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\RouteMerger.Infrastructure\RouteMerger.Infrastructure.csproj" />
+        <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Microsoft.AspNetCore.Components.Web" />
-      <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+      <ProjectReference Include="..\RouteMerger.Infrastructure\RouteMerger.Infrastructure.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
       <None Update="Utilities\XmlSchemas\Schemas\gpx.xsd">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

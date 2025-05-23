@@ -17,7 +17,7 @@ public class FileReferenceService(
     private static readonly string[] AllowedExtensions = [".gpx"];
     
     public async Task<ICollection<FileReference>> ProcessFilesAsync(
-        IBrowserFile[] files,
+        IFileUpload[] files,
         Action<decimal> onProgress)
     {
         var fileReferences = new List<FileReference>();
@@ -123,7 +123,7 @@ public class FileReferenceService(
         await fileReferenceRepository.DeleteAsync(fileReferences.Select(fr => fr.Id));
     }
 
-    private static async Task ValidateFileAsync(string fileExtension, IBrowserFile file)
+    private static async Task ValidateFileAsync(string fileExtension, IFileUpload file)
     {
         if (!AllowedExtensions.Contains(fileExtension))
         {
@@ -142,7 +142,7 @@ public class FileReferenceService(
         }
     }
     
-    private static async Task<string?> ValidateGpxContentAsync(IBrowserFile file)
+    private static async Task<string?> ValidateGpxContentAsync(IFileUpload file)
     {
         var schemaSet = XmlSchemaSetFactory.CreateGpxXmlSchemaSet();
         var validationErrors = new List<string>();

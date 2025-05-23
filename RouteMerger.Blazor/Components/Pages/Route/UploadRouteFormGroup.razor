@@ -1,5 +1,7 @@
-﻿@using RouteMerger.Blazor.Mappers
+﻿@using RouteMerger.Blazor.Adapters
+@using RouteMerger.Blazor.Mappers
 @using RouteMerger.Blazor.Models
+@using RouteMerger.Domain.Interfaces
 @using RouteMerger.Domain.Services
 @inject FileReferenceService FileReferenceService
 @inject ILogger<UploadRouteFormGroup> Logger
@@ -66,7 +68,7 @@ else
         try
         {
             var uploadedFiles = await FileReferenceService.ProcessFilesAsync(
-                e.GetMultipleFiles().ToArray(),
+                e.GetMultipleFiles().Select(file => new BrowserFileAdapter(file)).ToArray<IFileUpload>(),
                 progress =>
                 {
                     _progressPercent = progress;
