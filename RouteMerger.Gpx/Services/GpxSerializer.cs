@@ -8,13 +8,12 @@ public static class GpxSerializer
 {
     public static GpxType Deserialize(Stream stream)
     {
-        ValidateStream(stream);
         if (stream.Length == 0)
         {
             return new GpxType();
         }
 
-        stream.Seek(0, SeekOrigin.Begin);
+        HandleSeekableStream(stream);
         var serializer = new XmlSerializer(typeof(GpxType));
         
         var gpx = (GpxType?)serializer.Deserialize(stream);
@@ -48,12 +47,16 @@ public static class GpxSerializer
         return stream;
     }
 
-    private static void ValidateStream(Stream stream)
+    private static void HandleSeekableStream(Stream stream)
     {
-        ArgumentNullException.ThrowIfNull(stream);
         if (!stream.CanSeek)
         {
-            throw new ArgumentException("Stream must support seeking.", nameof(stream));
+            return;
+        }
+        
+        if (stream.Position != 0)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
         }
     }
 }

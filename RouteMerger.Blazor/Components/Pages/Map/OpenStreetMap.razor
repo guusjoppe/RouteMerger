@@ -1,10 +1,16 @@
 ﻿@inject IJSRuntime JsRuntime
 
+@if (_isLoading)
+{
+    <p>Loading map...</p>
+}
 <div id="map" style="height: 500px; width: 100%;"></div>
 
 @code {
     [Parameter] 
     public required string GpxXmlString { get; set; }
+    
+    private bool _isLoading = true;
     
     private DotNetObjectReference<OpenStreetMap>? _dotNetRef;
     
@@ -15,6 +21,7 @@
     {
         if (firstRender)
         {
+            _isLoading = true;
             _dotNetRef = DotNetObjectReference.Create(this);
             
             var latitude = DefaultLatitude;
@@ -40,6 +47,8 @@
             {
                 await JsRuntime.InvokeVoidAsync("openStreetMap.addGpxLayer", GpxXmlString);
             }
+            _isLoading = false;
+            StateHasChanged();
         }
     }
 

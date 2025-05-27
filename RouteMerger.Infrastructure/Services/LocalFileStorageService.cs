@@ -80,6 +80,12 @@ public class LocalFileStorageService : IFileStorageService
             fileName,
             fileDirectory);
     }
+    
+    public async Task DeleteFileAsync(string fileName,
+        FileDirectory fileDirectory = FileDirectory.Uploaded)
+    {
+        await Task.Run(() => DeleteFile(fileName, fileDirectory));
+    }
 
     public void DeleteFiles(IEnumerable<string> fileNames,
         FileDirectory fileDirectory = FileDirectory.Uploaded)
@@ -93,6 +99,12 @@ public class LocalFileStorageService : IFileStorageService
         _logger.LogInformation("Deleted {Count} files from {Directory}",
             fileList.Count,
             fileDirectory);
+    }
+    
+    public async Task DeleteFilesAsync(IEnumerable<string> fileNames,
+        FileDirectory fileDirectory = FileDirectory.Uploaded)
+    {
+        await Task.Run(() => DeleteFiles(fileNames, fileDirectory));
     }
     
     private string GetFilePath(FileDirectory fileDirectory, string trustedFileName)

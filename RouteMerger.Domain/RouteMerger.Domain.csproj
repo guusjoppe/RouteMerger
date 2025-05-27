@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="RouteMerger.Gpx" Version="1.0.0" />
+      <PackageReference Include="RouteMerger.Gpx" Version="1.0.1-alpha1" />
     </ItemGroup>
 
 </Project>

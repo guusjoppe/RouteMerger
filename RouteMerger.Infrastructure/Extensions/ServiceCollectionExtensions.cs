@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            // services.AddScoped<IFileStorageService, AwsS3FileStorageService>();
+            services.AddScoped<IFileStorageService, AwsS3Service>();
         }
     }
 }
