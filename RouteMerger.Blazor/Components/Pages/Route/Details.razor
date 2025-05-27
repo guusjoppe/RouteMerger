@@ -24,25 +24,31 @@ else
         <button class="btn btn-danger" @onclick="DeleteAsync">Delete</button>
         <button class="btn btn-secondary" @onclick="NavigateBack">Back</button>
     </p>
-}
-
-@if (_route?.MergedRoute == null)
-{
-    <button class="btn btn-primary" @onclick="MergeRoutesAsync">Merge Routes</button>
-    if (_isLoading)
+    if (_route?.MergedRoute == null && !_isLoadingMergedRoute)
     {
-        <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: @($"{_progressPercent:F0}%");" 
-                 aria-valuenow="@_progressPercent" aria-valuemin="0" aria-valuemax="100">
-                @($"{_progressPercent:F0}%")
-            </div>
+        <p>
+            This route has not been merged yet.
+        </p>
+        <div class="alert alert-info" role="alert">
+            <strong>Note:</strong> Merging routes may take a while depending on the number of files.
         </div>
+        <button class="btn btn-primary" @onclick="MergeRoutesAsync">Merge Routes</button>
+        if (_isLoading)
+        {
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: @($"{_progressPercent:F0}%");" 
+                     aria-valuenow="@_progressPercent" aria-valuemin="0" aria-valuemax="100">
+                    @($"{_progressPercent:F0}%")
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <OpenStreetMap GpxXmlString="@_mergedGpxString"></OpenStreetMap>
     }
 }
-else
-{
-    <OpenStreetMap GpxXmlString="@_mergedGpxString"></OpenStreetMap>
-}
+
 @code {
     [Parameter] 
     public Guid Id { get; set; }
@@ -52,6 +58,7 @@ else
     private string _mergedGpxString = string.Empty;
     
     private bool _isLoading;
+    private bool _isLoadingMergedRoute;
     private decimal _progressPercent;
 
     protected override async Task OnInitializedAsync()
@@ -62,8 +69,10 @@ else
         
         if (_route.MergedRoute != null)
         {
+            _isLoadingMergedRoute = true;
             var gpxStream = await FileReferenceService.GetFileStreamsAsync(_route.MergedRoute.Id, FileDirectory.Merged);
             await SetMergedGpxStringAsync(gpxStream);
+            _isLoadingMergedRoute = false;
         }
     }
 

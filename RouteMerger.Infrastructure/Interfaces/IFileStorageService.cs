@@ -18,7 +18,15 @@ public interface IFileStorageService
         string fileName,
         FileDirectory fileDirectory = FileDirectory.Uploaded);
     
+    Task DeleteFileAsync(
+        string fileName,
+        FileDirectory fileDirectory = FileDirectory.Uploaded);
+    
     void DeleteFiles(
+        IEnumerable<string> fileNames,
+        FileDirectory fileDirectory = FileDirectory.Uploaded);
+    
+    Task DeleteFilesAsync(
         IEnumerable<string> fileNames,
         FileDirectory fileDirectory = FileDirectory.Uploaded);
 }

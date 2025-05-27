@@ -6,6 +6,12 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+if (File.Exists("appsettings.Local.json"))
+{
+    builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+}
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -16,7 +22,7 @@ builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
 builder.Services.AddDomainServices();
 builder.Services.AddPersistenceServices(builder.Configuration);
 
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 var app = builder.Build();
 

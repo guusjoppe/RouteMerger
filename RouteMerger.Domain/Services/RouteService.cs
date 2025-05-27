@@ -1,6 +1,4 @@
-﻿using System.Xml;
-using System.Xml.Serialization;
-using RouteMerger.Domain.Interfaces;
+﻿using RouteMerger.Domain.Interfaces;
 using RouteMerger.Domain.Models;
 using RouteMerger.Gpx.Services;
 using RouteMerger.Infrastructure.Enums;

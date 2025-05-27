@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using RouteMerger.Infrastructure.Configuration;
 using RouteMerger.Infrastructure.Enums;
 using RouteMerger.Infrastructure.Interfaces;
 
@@ -13,14 +14,16 @@ public class LocalFileStorageService : IFileStorageService
 
     private static readonly byte[] Buffer = new byte[1024 * 10]; // 10 KB buffer
 
-    public LocalFileStorageService(ILogger<IFileStorageService> logger)
+    public LocalFileStorageService(
+        ILogger<IFileStorageService> logger,
+        FileStorageConfiguration fileStorageConfiguration)
     {
         _logger = logger;
         
-        _uploadDirectory = Path.Combine(AppContext.BaseDirectory, "uploads");
+        _uploadDirectory = Path.Combine(AppContext.BaseDirectory, fileStorageConfiguration.UploadDirectory);
         Directory.CreateDirectory(_uploadDirectory);
         
-        _mergedRoutesDirectory = Path.Combine(AppContext.BaseDirectory, "merged");
+        _mergedRoutesDirectory = Path.Combine(AppContext.BaseDirectory, fileStorageConfiguration.MergedRoutesDirectory);
         Directory.CreateDirectory(_mergedRoutesDirectory);
     }
 
@@ -77,6 +80,12 @@ public class LocalFileStorageService : IFileStorageService
             fileName,
             fileDirectory);
     }
+    
+    public async Task DeleteFileAsync(string fileName,
+        FileDirectory fileDirectory = FileDirectory.Uploaded)
+    {
+        await Task.Run(() => DeleteFile(fileName, fileDirectory));
+    }
 
     public void DeleteFiles(IEnumerable<string> fileNames,
         FileDirectory fileDirectory = FileDirectory.Uploaded)
@@ -90,6 +99,12 @@ public class LocalFileStorageService : IFileStorageService
         _logger.LogInformation("Deleted {Count} files from {Directory}",
             fileList.Count,
             fileDirectory);
+    }
+    
+    public async Task DeleteFilesAsync(IEnumerable<string> fileNames,
+        FileDirectory fileDirectory = FileDirectory.Uploaded)
+    {
+        await Task.Run(() => DeleteFiles(fileNames, fileDirectory));
     }
     
     private string GetFilePath(FileDirectory fileDirectory, string trustedFileName)
