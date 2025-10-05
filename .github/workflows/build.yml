@@ -12,15 +12,16 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Set up NuGet authentication
+      run: |
+        dotnet nuget add source "https://pkgs.dev.azure.com/routemerger/_packaging/routemerger/nuget/v3/index.json" --name "RouteMerger" --username az --password ${{ secrets.AZURE_ARTIFACTS_PAT }} --store-password-in-clear-text
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
